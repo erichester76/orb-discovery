@@ -1,4 +1,5 @@
-from pyVmomi import vim, SmartConnect, Disconnect
+from pyVmomi import vim, vmodl
+from pyVim.connect import SmartConnect, Disconnect
 from diode_sdk import DiodeClient
 
 def discover_vcenter(diode_target, diode_api_key, vcenter_host, vcenter_username, vcenter_password):
