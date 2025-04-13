@@ -10,7 +10,7 @@ setup(
         ],
     },
     install_requires=[
-        'netbox-diode-sdk',
+        'netboxlabs-diode-sdk',
         'pyvmomi',
     ],
     author='Eric Hester',
