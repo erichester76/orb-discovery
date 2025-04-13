@@ -22,9 +22,11 @@ def discover_vcenter(diode_target, diode_api_key, vcenter_host, vcenter_username
             for host in hosts:
                 entity = Entity(device=Device(
                     name=host.name,
-                    hostname=host.name,
+                    manufacturer=host.hardware.systemInfo.vendor,
                     device_type=host.summary.hardware.model,
+                    device_role="Hypervisor Host",
                     platform=host.summary.config.product.fullName,
+                    site="Default Site", 
                     status="active" if host.summary.runtime.powerState == "poweredOn" else "offline",
                 ))
                 diode.ingest(entity)
