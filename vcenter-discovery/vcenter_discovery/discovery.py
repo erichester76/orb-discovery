@@ -4,7 +4,7 @@ from netboxlabs.diode.sdk import DiodeClient
 from netboxlabs.diode.sdk.ingester import Device, VirtualMachine, Cluster, Interface, VMInterface, VirtualDisk, IPAddress, Prefix, Entity
 
 
-from transformer import Transformer
+from .transformer import Transformer
 transformer = Transformer(
     "includes/host_site_rules.yml",
     "includes/host_tenant_rules.yml",
@@ -151,46 +151,34 @@ def discover_vcenter(diode_target, diode_api_key, vcenter_host, vcenter_username
                             {"capacity": round(disk.capacityInKB / 1024)}
                             for disk in vm.config.hardware.device if hasattr(disk, "capacityInKB")
                         ]
-                        if DiodeClient and Entity and VirtualMachine and Interface and IPAddress:
-                            entity = Entity(virtual_machine=VirtualMachine(
-                                name=vm.name,
-                                status="active" if vm.runtime.powerState == "poweredOn" else "offline",
-                                site=transformer.host_to_site(vm.runtime.host.name) if vm.runtime.host else "",
-                                cluster=vm.runtime.host.parent.name if vm.runtime.host else "",
-                                role=transformer.vm_to_role(vm.name),
-                                device=transformer.clean_name(vm.runtime.host.name) if vm.runtime.host else "",
-                                platform=vm.guest.guestFullName if vm.guest and vm.guest.guestFullName else "Unknown",
-                                vcpus=vm.config.hardware.numCPU if hasattr(vm.config.hardware, "numCPU") else 0,
-                                memory_mb=vm.config.hardware.memoryMB if hasattr(vm.config.hardware, "memoryMB") else 0,
-                                disk=sum(d["capacity"] for d in vm_disks),
-                                tenant=transformer.vm_to_tenant(vm.name),
-                                comments=vm.summary.config.annotation if vm.summary.config.annotation else "",
-                                interfaces=[
-                                    Interface(
-                                        name=iface["name"],
-                                        mac_address=iface["mac_address"],
-                                        enabled=iface["enabled"],
-                                        ip_addresses=[
-                                            IPAddress(address=ip["address"], prefix_length=ip["prefix_length"])
-                                            for ip in iface["ipv4_addresses"] + iface["ipv6_addresses"]
-                                        ]
-                                    ) for iface in vm_interfaces
-                                ]
-                            ))
-                            diode.ingest(entity)
-                        else:
-                            print(f"Debug: Would send VirtualMachine to Diode: name={vm.name}, "
-                                  f"site={transformer.host_to_site(vm.runtime.host.name) if vm.runtime.host else ''}, "
-                                  f"cluster={vm.runtime.host.parent.name if vm.runtime.host else ''}, "
-                                  f"role={transformer.vm_to_role(vm.name)}, "
-                                  f"device={transformer.clean_name(vm.runtime.host.name) if vm.runtime.host else ''}, "
-                                  f"platform={vm.guest.guestFullName if vm.guest and vm.guest.guestFullName else 'Unknown'}, "
-                                  f"vcpus={vm.config.hardware.numCPU if hasattr(vm.config.hardware, 'numCPU') else 0}, "
-                                  f"memory={vm.config.hardware.memoryMB if hasattr(vm.config.hardware, 'memoryMB') else 0}, "
-                                  f"disk={sum(d['capacity'] for d in vm_disks)}, "
-                                  f"tenant={transformer.vm_to_tenant(vm.name)}, "
-                                  f"comments={vm.summary.config.annotation if vm.summary.config.annotation else ''}, "
-                                  f"interfaces={vm_interfaces}")
+                        
+                        entity = Entity(virtual_machine=VirtualMachine(
+                            name=vm.name,
+                            status="active" if vm.runtime.powerState == "poweredOn" else "offline",
+                            site=transformer.host_to_site(vm.runtime.host.name) if vm.runtime.host else "",
+                            cluster=vm.runtime.host.parent.name if vm.runtime.host else "",
+                            role=transformer.vm_to_role(vm.name),
+                            device=transformer.clean_name(vm.runtime.host.name) if vm.runtime.host else "",
+                            platform=vm.guest.guestFullName if vm.guest and vm.guest.guestFullName else "Unknown",
+                            vcpus=vm.config.hardware.numCPU if hasattr(vm.config.hardware, "numCPU") else 0,
+                            memory_mb=vm.config.hardware.memoryMB if hasattr(vm.config.hardware, "memoryMB") else 0,
+                            disk=sum(d["capacity"] for d in vm_disks),
+                            tenant=transformer.vm_to_tenant(vm.name),
+                            comments=vm.summary.config.annotation if vm.summary.config.annotation else "",
+                            interfaces=[
+                                Interface(
+                                    name=iface["name"],
+                                    mac_address=iface["mac_address"],
+                                    enabled=iface["enabled"],
+                                    ip_addresses=[
+                                        IPAddress(address=ip["address"], prefix_length=ip["prefix_length"])
+                                        for ip in iface["ipv4_addresses"] + iface["ipv6_addresses"]
+                                    ]
+                                ) for iface in vm_interfaces
+                            ]
+                        ))
+                        diode.ingest(entity)
+
                     except Exception as e:
                         print(f"Error processing VM {vm.name}: {e}")
                 elif isinstance(vm, vim.Folder):
