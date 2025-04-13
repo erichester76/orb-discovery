@@ -1,7 +1,7 @@
 from pyVmomi import vim
 from pyVim.connect import SmartConnect, Disconnect
 from netboxlabs.diode.sdk import DiodeClient
-from diode.v1.ingester_pb2 import Entity, Device, VirtualMachine, Interface, IPAddress
+from netboxlabs.diode.sdk.ingester import Device, VirtualMachine, Cluster, Interface, VMInterface, VirtualDisk, IPAddress, Prefix, Entity
 
 
 from transformer import Transformer
