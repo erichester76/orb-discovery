@@ -24,7 +24,7 @@ def discover_vcenter(diode_target, diode_api_key, vcenter_host, vcenter_username
                 "site": "Default Site",
             }
             if DiodeClient:
-                diode.send(device)
+                diode.ingest(device)
             else:
                 print(f"Debug: Would send to Diode: {device}")
         host_view.Destroy()
