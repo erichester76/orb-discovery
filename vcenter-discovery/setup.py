@@ -12,6 +12,7 @@ setup(
     install_requires=[
         'netboxlabs-diode-sdk',
         'pyvmomi',
+        'pyYAML'
     ],
     author='Eric Hester',
     author_email='hester1@clemson.edu',

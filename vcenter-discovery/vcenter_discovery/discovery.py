@@ -25,13 +25,12 @@ def discover_vcenter(diode_target, diode_api_key, vcenter_host, vcenter_username
     try:
         si = SmartConnect(host=vcenter_host, user=vcenter_username, pwd=vcenter_password, sslContext=None)
         content = si.RetrieveContent()
-        if DiodeClient:
-            diode = DiodeClient(
-                target=diode_target,
-                api_key=diode_api_key,
-                app_name="vcenter-discovery",
-                app_version="0.0.1"
-            )
+        diode = DiodeClient(
+            target=diode_target,
+            api_key=diode_api_key,
+            app_name="vcenter-discovery",
+            app_version="0.0.1"
+        )
 
         def _get_nic_type(link_speed):
             if link_speed is None:
@@ -84,34 +83,27 @@ def discover_vcenter(diode_target, diode_api_key, vcenter_host, vcenter_username
                                     "ip_addresses": [],
                                 })
                             serial_number = extract_serial_number(host.summary.hardware.otherIdentifyingInfo)
-                            if DiodeClient and Entity and Device and Interface and IPAddress:
-                                entity = Entity(device=Device(
-                                    name=clean_name,
-                                    manufacturer=host.hardware.systemInfo.vendor,
-                                    device_type=host.summary.hardware.model,
-                                    device_role="Hypervisor Host",
-                                    serial_number=serial_number,
-                                    platform=host.summary.config.product.fullName,
-                                    status="active" if host.summary.runtime.powerState == "poweredOn" else "offline",
-                                    site=site_name,
-                                    tenant=tenant,
-                                    interfaces=[
-                                        Interface(
-                                            name=nic["name"],
-                                            type=nic["type"],
-                                            mac_address=nic["mac_address"],
-                                            ip_addresses=[IPAddress(address=ip) for ip in nic["ip_addresses"]]
-                                        ) for nic in host_nics
-                                    ]
-                                ))
-                                diode.ingest(entity)
-                            else:
-                                print(f"Debug: Would send Device to Diode: name={clean_name}, site={site_name}, "
-                                      f"tenant={tenant}, manufacturer={host.hardware.systemInfo.vendor}, "
-                                      f"device_type={host.summary.hardware.model}, device_role=Server, "
-                                      f"serial_number={serial_number}, platform=VMware ESXi, "
-                                      f"status={'active' if host.summary.runtime.powerState == 'poweredOn' else 'offline'}, "
-                                      f"comments={host.summary.config.product.fullName}, interfaces={host_nics}")
+                            entity = Entity(device=Device(
+                                name=clean_name,
+                                manufacturer=host.hardware.systemInfo.vendor,
+                                device_type=host.summary.hardware.model,
+                                device_role="Hypervisor Host",
+                                serial_number=serial_number,
+                                platform=host.summary.config.product.fullName,
+                                status="active" if host.summary.runtime.powerState == "poweredOn" else "offline",
+                                site=site_name,
+                                tenant=tenant,
+                                interfaces=[
+                                    Interface(
+                                        name=nic["name"],
+                                        type=nic["type"],
+                                        mac_address=nic["mac_address"],
+                                        ip_addresses=[IPAddress(address=ip) for ip in nic["ip_addresses"]]
+                                    ) for nic in host_nics
+                                ]
+                            ))
+                            diode.ingest(entity)
+                            
                         except Exception as e:
                             print(f"Error processing host {host.name}: {e}")
                 except Exception as e:
