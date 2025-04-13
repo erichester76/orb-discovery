@@ -20,4 +20,4 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 USER appuser
 
-CMD [ "cu-vcenter-discovery" ]
+CMD [ "vcenter-discovery" ]
