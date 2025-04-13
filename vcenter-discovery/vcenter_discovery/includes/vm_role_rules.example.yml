@@ -1,0 +1,2 @@
+  - ['.*adc[0-9]+$', 'AD Domain Controller']
+  - ['.*avs[0-9]+$', 'Anti-Virus']
