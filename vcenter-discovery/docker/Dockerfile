@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bullseye AS builder
+FROM harbor.app.clemson.edu/dockerhub-proxy/python:3.12-slim-bullseye AS builder
 
 WORKDIR /usr/src/app
 
@@ -6,10 +6,10 @@ COPY . .
 
 RUN python -m venv /opt/venv && \
     . /opt/venv/bin/activate && \
-    pip install --no-cache-dir . && \
+    export https_proxy=http://proxy.app.clemson.edu:8080 && pip install --no-cache-dir . && \
     deactivate
 
-FROM python:3.12-slim-bullseye
+FROM harbor.app.clemson.edu/dockerhub-proxy/python:3.12-slim-bullseye
 
 RUN addgroup --system netdev && useradd -m --shell /bin/bash -G netdev appuser && echo "appuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
